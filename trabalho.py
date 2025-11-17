@@ -4,7 +4,6 @@ import os
 import traceback 
 
 def parse_float(s: str) -> float:
-    """Converte string para float, lidando com espaços."""
     s = s.strip()
     if not s:
         raise ValueError(f"String vazia após strip: '{s}'")
@@ -174,7 +173,7 @@ def format_table(headers, rows, widths=None):
     header_line = " | ".join(f"{h:<{w}}" for h, w in zip(headers, widths))
     separator = "-+-".join("-" * w for w in widths)
     
-    # Rows
+
     body_lines = []
     for row in rows:
         if isinstance(row, str):
@@ -188,7 +187,7 @@ def format_table(headers, rows, widths=None):
 
 def process_functions(input_file: str, output_file: str):
     if not os.path.exists(input_file):
-        raise FileNotFoundError(f"Arquivo '{input_file}' não encontrado. Crie-o com expressões matemáticas, uma por linha.")
+        raise FileNotFoundError(f"Arquivo '{input_file}' não encontrado")
     
     with open(input_file, 'r', encoding='utf-8') as infile:
         functions = [line.strip() for line in infile if line.strip()]
@@ -200,7 +199,6 @@ def process_functions(input_file: str, output_file: str):
     with open(output_file, 'w', encoding='utf-8') as f:
         for line_num, line in enumerate(functions, 1):
             try:
-                # Split e strip para robustez
                 parts = [part.strip() for part in line.split(",")]
                 if len(parts) != 8:
                     raise ValueError(f"Linha inválida: esperados 7 campos, mas encontrou {len(parts)}")
@@ -209,7 +207,6 @@ def process_functions(input_file: str, output_file: str):
                 itfunc_str = parts[1]
                 dfunc_str = parts[2]
                 
-                # Parse numéricos com tratamento de erros
                 a = parse_float(parts[3])
                 b = parse_float(parts[4])
                 x0 = parse_float(parts[5])
@@ -235,7 +232,7 @@ def process_functions(input_file: str, output_file: str):
                 f.write(format_table(headers_bis, iters_bis))
                 print("Bissecção processada.")
 
-                # Newton
+                #Newton
                 raiz_new, iters_new, iters_count_new, erro_new = newton(func, dfunc, x0, tol, digits)
                 headers_new = ["Iter", "x", "f(x)", "f'(x)", "x_new", "f(x_new)"]
                 f.write(f"\n\n=== Método de Newton (x0={x0}, tol={tol}) ===\n")
@@ -263,7 +260,6 @@ def process_functions(input_file: str, output_file: str):
                 f.write(format_table(headers_reg, iters_reg))
                 print("Regula Falsi processado.")
                 
-                # Tabela de Comparação
                 f.write("\n\n=== Comparação dos Métodos ===\n")
                 status_bis = "Convergiu" if raiz_bis is not None else "Falhou"
                 status_new = "Convergiu" if raiz_new is not None else "Falhou"
@@ -287,9 +283,8 @@ def process_functions(input_file: str, output_file: str):
                 error_msg = f"Linha {line_num}: Erro ao processar '{line}': {e}"
                 f.write(f"\n{error_msg}\n")
                 print(error_msg)
-                traceback.print_exc()  # Para debug no console
+                traceback.print_exc()
 
-# Exemplo
 if __name__ == "__main__":
     try:
         process_functions("funcoes.txt", "resultados.txt")
